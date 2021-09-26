@@ -29,7 +29,7 @@ const errorLink = onError(({ graphqlErrors, networkErrors }) => {
 const link = from([
   errorLink,
   new createHttpLink({ 
-    uri: "https://senheng-gql.testingnow.me/graphql",
+    uri: "https://b2cdemo.getswift.asia/graphql",
     credentials: 'same-origin',
   }),
 ]);

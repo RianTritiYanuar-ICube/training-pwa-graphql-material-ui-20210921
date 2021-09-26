@@ -1,16 +1,18 @@
 import { gql } from "@apollo/client";
 
 export const LOAD_CATEGORIES = gql`
-  query Query($categoryListFilters: CategoryFilterInput) {
-    categoryList(filters: $categoryListFilters) {
+  query Query {
+    categoryList {
       children {
         id
-        name
         image
+        name
+        url_key
         children {
           id
-          name
           image
+          name
+          url_key
         }
       }
     }
@@ -18,20 +20,22 @@ export const LOAD_CATEGORIES = gql`
 `;
 
 export const LOAD_PRODUCTS = gql`
-  query Query($productsFilter: ProductAttributeFilterInput) {
-    products(filter: $productsFilter) {
-      items {
-        id
-        name
-        url_key
-        image {
-          url
-        }
-        price_range {
-          maximum_price {
-            final_price {
-              value
-              currency
+  query Query($categoryListFilters: CategoryFilterInput) {
+    categoryList(filters: $categoryListFilters) {
+      products {
+        items {
+          id
+          image {
+            url
+          }
+          name
+          url_key
+          price_range {
+            maximum_price {
+              final_price {
+                currency
+                value
+              }
             }
           }
         }

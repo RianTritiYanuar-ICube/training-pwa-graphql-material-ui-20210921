@@ -4,64 +4,80 @@ import Image from "next/image";
 import Link from "next/link";
 import { useQuery } from "@apollo/client";
 import { LOAD_CATEGORIES } from "../graphql/queries";
-import { Container, Box, Paper, Typography } from '@mui/material';
+import { Container, Grid, Box, Paper, Typography, Stack } from "@mui/material";
+import { createTheme, ThemeProvider, styled } from "@mui/material/styles";
 
 export default function Home() {
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([])
+  const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const { error, loading, data } = useQuery(
-    LOAD_CATEGORIES, {
-      // fetchPolicy: 'no-cache',
-      variables: {
-        categoryListFilters: {
-          url_key: {
-            eq: "brands-corner"
-          }
-        }
-      }
-    }
-  );
+  const resCategories = useQuery(LOAD_CATEGORIES);
+
+  const Item = styled(Paper)(({ theme }) => ({
+    ...theme.typography.body2,
+    padding: "10px 20px 10px 20px",
+    textAlign: "center",
+    color: theme.palette.text.secondary,
+  }));
 
   const categoryList = () => {
-    return(
+    return (
       <>
-        <Typography sx={{ textAlign: 'center', marginBottom: '10px' }} variant="h3" component="h2">
-          Our Brands
+        <Typography
+          variant="h2"
+          gutterBottom
+          component="div"
+          sx={{ textAlign: "center" }}
+        >
+          Categories
         </Typography>
-        <Box 
-          sx={{ 
-            display: 'flex',
-            flexWrap: 'wrap',
-            '& > :not(style)': {
-              m: 1,
-              width: 128,
-              height: 128,
-              textAlign: 'center'
-            },
-          }}>
-          {categories.map(c => (
-            <Paper elevation={3}>
-              <Link key={c.id} href={"/category/" + c.id}>
-                <a>
-                  {c.image && <Image src={c.image} width={50} height={50} />}
-                  <h4>{c.name}</h4>
-                </a>
-              </Link>
-            </Paper>
-          ))}
-        </Box>
+
+        {categories.map((category) => {
+          return category.children.length ? (
+            <Container
+              maxWidth="xl"
+              sx={{ padding: "10px 0px 30px 0px" }}
+              key={category.id}
+            >
+              <Typography variant="h4" gutterBottom component="div">
+                {category.name}
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  width: "100%",
+                  "& > :not(style)": {
+                    m: 1,
+                    textAlign: "center",
+                  },
+                }}
+              >
+                {category.children.map((children) => (
+                  <Link
+                    key={children.id}
+                    href={`/category/${children.url_key}`}
+                  >
+                    <a>
+                      <Item>{children.name}</Item>
+                    </a>
+                  </Link>
+                ))}
+              </Box>
+            </Container>
+          ) : null;
+        })}
       </>
-    )
-  }
+    );
+  };
 
   useEffect(() => {
-    if (data) {
-      setCategories(data.categoryList[0].children)
-      console.log(data.categoryList[0].children)
+    if (resCategories.data) {
+      setCategories(resCategories.data.categoryList[0].children);
     }
-    setIsLoading(loading);
+
+    setIsLoading(resCategories.loading);
   });
 
   return (
@@ -70,9 +86,7 @@ export default function Home() {
         <title>HomePage</title>
       </Head>
       <Container maxWidth="lg">
-        {isLoading ? (
-          <h3>Loading ...</h3>
-        ) : categoryList()}
+        {isLoading ? <h3>Loading ...</h3> : categoryList()}
       </Container>
     </div>
   );
