@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from "react";
-import parse from "html-react-parser";
 import Head from "next/head";
-import { useRouter } from "next/router";
-import { useQuery } from "@apollo/client";
-import { LOAD_CART_DETAIL } from "../../graphql/queries";
 import {
   Container,
   Box,
@@ -87,7 +83,7 @@ function Product() {
     if (localStorage.getItem("cart")) {
       setCart(JSON.parse(localStorage.getItem("cart")));
     }
-  });
+  }, []);
 
   return (
     <div>
