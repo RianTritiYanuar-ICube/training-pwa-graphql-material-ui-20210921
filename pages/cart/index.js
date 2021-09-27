@@ -15,7 +15,6 @@ import { Delete as DeleteIcon } from "@mui/icons-material";
 
 function Product() {
   const [cart, setCart] = useState(null);
-  const [cartToken, setCartToken] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const cartList = () => {
