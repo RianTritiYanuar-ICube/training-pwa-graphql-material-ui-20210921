@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,13 +8,18 @@ import { LOAD_PRODUCTS } from "../../graphql/queries";
 import { Container, Box, Card } from "@mui/material";
 
 export default function Home() {
-  const [products, setProducts] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
+  /**
+   * Route stuff
+   * 
+   */
   const router = useRouter();
   const url_key = router.query.url_key;
 
-  const { error, loading, data } = useQuery(LOAD_PRODUCTS, {
+  /**
+   * Init load products
+   * 
+   */
+  const resProducts = useQuery(LOAD_PRODUCTS, {
     // fetchPolicy: 'no-cache',
     variables: {
       categoryListFilters: {
@@ -24,6 +29,22 @@ export default function Home() {
       },
     },
   });
+
+  /**
+   * Response data
+   * 
+   */
+  const loading = resProducts.loading
+  const error = resProducts.error
+  let products = []
+
+  /**
+   * Check if we successfull get the data
+   * 
+   */
+  if(resProducts.data){
+    products = resProducts.data.categoryList[0].products.items
+  }
 
   const productList = () => {
     return (
@@ -40,7 +61,7 @@ export default function Home() {
         }}
       >
         {products.map((p) => (
-          <Card variant="outlined">
+          <Card variant="outlined" key={p.id}>
             <Image src={p.image.url} width={150} height={150} />
             <Link href={"/product/" + p.url_key}>
               <a>
@@ -59,22 +80,13 @@ export default function Home() {
     );
   };
 
-  useEffect(() => {
-    if (data) {
-      setProducts(data.categoryList[0].products.items);
-      console.log(data);
-    }
-    console.log(error);
-    setIsLoading(loading);
-  });
-
   return (
     <div>
       <Head>
         <title>HomePage</title>
       </Head>
       <Container sx={{ justifyContent: "center" }} maxWidth={"lg"}>
-        {isLoading ? <h3>Loading ...</h3> : productList()}
+        {loading ? <h3>Loading ...</h3> : productList()}
       </Container>
     </div>
   );

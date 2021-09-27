@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import parse from "html-react-parser";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -17,15 +17,16 @@ import {
   Stack,
   Snackbar,
 } from "@mui/material";
-import { TrafficRounded } from "@mui/icons-material";
 
 function Product() {
-  const [product, setProduct] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [toast, setToast] = useState(false);
 
+  /**
+   * Router stuff
+   * 
+   */
   const router = useRouter();
   const url_key = router.query.url_key;
 
@@ -33,7 +34,7 @@ function Product() {
    * Query get product detail
    *
    */
-  const { error, loading, data } = useQuery(LOAD_PRODUCT_DETAIL, {
+  const resProduct = useQuery(LOAD_PRODUCT_DETAIL, {
     // fetchPolicy: 'no-cache',
     variables: {
       productsFilter: {
@@ -43,6 +44,22 @@ function Product() {
       },
     },
   });
+
+  /**
+   * Product data
+   * 
+   */
+  const loading = resProduct.loading
+  const error = resProduct.error
+  let product = null
+
+  /**
+   * Check the data
+   * 
+   */
+   if (resProduct.data) {
+    product = resProduct.data.products.items[0]
+  }
 
   /**
    * Add to cart mutation
@@ -85,6 +102,12 @@ function Product() {
                 quantity: quantity,
                 sku: product.sku,
               },
+              // customizable_options: [
+              //   {
+              //     id: null,
+              //     value_string: null
+              //   }
+              // ]
             },
           ],
         },
@@ -202,21 +225,12 @@ function Product() {
     );
   };
 
-  useEffect(() => {
-    if (data) {
-      setProduct(data.products.items[0]);
-      // console.log(data)
-    }
-
-    setIsLoading(loading);
-  });
-
   return (
     <div>
       <Head>
         <title>Detail</title>
       </Head>
-      <div>{isLoading ? <h3>Loading ...</h3> : detailProduct()}</div>
+      <div>{loading ? <h3>Loading ...</h3> : detailProduct()}</div>
     </div>
   );
 }

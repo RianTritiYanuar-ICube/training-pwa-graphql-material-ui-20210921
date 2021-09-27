@@ -66,6 +66,15 @@ export const LOAD_PRODUCT_DETAIL = gql`
         description {
           html
         }
+        ... on ConfigurableProduct {
+          configurable_options {
+            id
+            values {
+              label
+              store_label
+            }
+          }
+        }
       }
     }
   }

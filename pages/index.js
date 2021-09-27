@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,11 +8,27 @@ import { Container, Grid, Box, Paper, Typography, Stack } from "@mui/material";
 import { createTheme, ThemeProvider, styled } from "@mui/material/styles";
 
 export default function Home() {
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
+  /**
+   * Init load categories query
+   * 
+   */
   const resCategories = useQuery(LOAD_CATEGORIES);
+
+  /**
+   * Some data from response
+   * 
+   */
+  const loading = resCategories.loading
+  const error = resCategories.error
+  let categories = []
+
+  /**
+   * Check if we successfull get the data
+   * 
+   */
+  if(resCategories.data){
+    categories = resCategories.data.categoryList[0].children
+  }
 
   const Item = styled(Paper)(({ theme }) => ({
     ...theme.typography.body2,
@@ -72,21 +88,13 @@ export default function Home() {
     );
   };
 
-  useEffect(() => {
-    if (resCategories.data) {
-      setCategories(resCategories.data.categoryList[0].children);
-    }
-
-    setIsLoading(resCategories.loading);
-  });
-
   return (
     <div>
       <Head>
         <title>HomePage</title>
       </Head>
       <Container maxWidth="lg">
-        {isLoading ? <h3>Loading ...</h3> : categoryList()}
+        {loading ? <h3>Loading ...</h3> : categoryList()}
       </Container>
     </div>
   );
